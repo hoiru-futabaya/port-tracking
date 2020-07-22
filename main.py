@@ -13,11 +13,14 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 tracker = trackingmoreclass.track
 result = ""
 
-with open('trklist') as f:
+with open('trklist') as f:\
 	trklist = ast.literal_eval(f.read())
 
 #trackingmoreの登録業者辞書（名前: code）
-carrierjp ={'日本郵便': 'japan-post', '日通': 'nippon', 'クロネコヤマト': 'taqbin-jp', '佐川急便': 'sagawa'}
+carrierjp = {'日本郵便': 'japan-post', '日通': 'nippon', 'クロネコヤマト': 'taqbin-jp', '佐川急便': 'sagawa'}
+
+#↑のキーと値を入れ替えた辞書も作っておく
+carrierR = {'japan-post': '日本郵便', 'nippon': '日通', 'taqbin-jp': 'クロネコヤマト', 'sagawa': '佐川急便'}
 
 #モード選択
 print('【登録 → 1　追跡 → 2　削除 → 3】')
@@ -48,7 +51,7 @@ elif mode == '2':
 		requestData = ""
 		result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
 #		ast.literal_eval(result)
-		print('【' + urlStr + '】' )
+		print('【' + j + ': ' + i + '】' )
 		pprint.pprint(next(iter(json.loads(result)['data']['origin_info']['trackinfo'])))
 
 elif mode == '3':
