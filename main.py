@@ -38,10 +38,18 @@ if mode == '1':
 	trklist[number] = carrier
 	with open('trklist', mode='w') as f:
 		f.write(str(trklist))
+	print(result)
 
 elif mode == '2':
 	#追跡リストを表示
-	print('準備中')
+	for i in trklist:
+		j = trklist[i]
+		urlStr = "/" + carrierjp[j] + "/" + i
+		requestData = ""
+		result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
+#		ast.literal_eval(result)
+		print('【' + urlStr + '】' )
+		pprint.pprint(next(iter(json.loads(result)['data']['origin_info']['trackinfo'])))
 
 elif mode == '3':
 	#削除対象を入力
@@ -57,4 +65,6 @@ elif mode == '3':
 	with open('trklist', mode='w') as f:
 		f.write(str(trklist))
 
-print(result)
+	print(result)
+
+
