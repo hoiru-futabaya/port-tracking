@@ -10,6 +10,7 @@ import io,sys,ast
 
 tracker = trackingmoreclass.track
 result = ""
+tasker = {}
 
 with open('trklist') as f:\
 	trklist = ast.literal_eval(f.read())
@@ -20,9 +21,14 @@ carrierjp = {'日本郵便': 'japan-post', '日通': 'nippon', 'クロネコヤ�
 #↑のキーと値を入れ替えた辞書も作っておく
 carrierR = {'japan-post': '日本郵便', 'nippon': '日通', 'taqbin-jp': 'クロネコヤマト', 'sagawa': '佐川急便'}
 
-#モード選択
-print('【登録 → 1　追跡 → 2　削除 → 3】')
-mode = input('>>')
+#インタプリタの引数で直接追跡モードに入る
+if len(sys.argv) > 1:
+	mode = '2'
+
+else:
+	#モード選択
+	print('【登録 → 1　追跡 → 2　削除 → 3】')
+	mode = input('>>')
 
 if mode == '1':
 	#登録画面
@@ -49,8 +55,15 @@ elif mode == '2':
 		requestData = ""
 		result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
 #		ast.literal_eval(result)
-		print('【' + j + ': ' + i + '】' )
-		pprint.pprint(next(iter(json.loads(result)['data']['origin_info']['trackinfo'])))
+		title = '【' + j + ': ' + i + '】'
+		print(title)
+		track = next(iter(json.loads(result)['data']['origin_info']['trackinfo']))
+		pprint.pprint(track)
+		tasker[title] = track
+
+	with open('tasker', mode='w') as f:
+		f.write(str(tasker))
+
 
 elif mode == '3':
 	#削除対象を入力
@@ -67,5 +80,4 @@ elif mode == '3':
 		f.write(str(trklist))
 
 	print(result)
-
 
