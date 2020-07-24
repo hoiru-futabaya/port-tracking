@@ -21,63 +21,51 @@ carrierjp = {'日本郵便': 'japan-post', '日通': 'nippon', 'クロネコヤ�
 #↑のキーと値を入れ替えた辞書も作っておく
 carrierR = {'japan-post': '日本郵便', 'nippon': '日通', 'taqbin-jp': 'クロネコヤマト', 'sagawa': '佐川急便'}
 
-#インタプリタの引数で直接追跡モードに入る
-if len(sys.argv) > 1:
-	mode = '2'
+#関数trackingctl(mode=a, carrier=b, number=c)という形式で指定。modeが2の場合残り2つの引数は指定しない
 
-else:
-	#モード選択
-	print('【登録 → 1　追跡 → 2　削除 → 3】')
-	mode = input('>>')
+def trackingctl(mode, carrier ='', number = ''):
 
-if mode == '1':
-	#登録画面
-	print('【追跡する荷物の登録】')
-	carrier = input('運送会社を入力: ')
-	number = input('伝票番号を入力: ')
+	if mode  == '1':
+		#登録画面
 
-	#trackingmoreから情報取得
-	urlStr = ''
-	requestData ="{\"tracking_number\": \"" + number + "\",\"carrier_code\":\"" + carrierjp[carrier] + "\"}"
-	result = tracker.trackingmore(requestData, urlStr, "post")
+		#trackingmoreから情報取得
+		urlStr = ''
+		requestData ="{\"tracking_number\": \"" + number + "\",\"carrier_code\":\"" + carrierjp[carrier] + "\"}"
+		result = tracker.trackingmore(requestData, urlStr, "post")
 
-	#追跡中の荷物を辞書で持っておく（運送会社: 伝票番号）
-	trklist[number] = carrier
-	with open('trklist', mode='w') as f:
-		f.write(str(trklist))
-	print(result)
+		#追跡中の荷物を辞書で持っておく（運送会社: 伝票番号）
+		trklist[number] = carrier
+		with open('trklist', mode='w') as f:
+			f.write(str(trklist))
 
-elif mode == '2':
-	#追跡リストを表示
-	for i in trklist:
-		j = trklist[i]
-		urlStr = "/" + carrierjp[j] + "/" + i
+		return result
+
+	elif mode == '2':
+		#追跡リストを表示
+		for i in trklist:
+			j = trklist[i]
+			urlStr = "/" + carrierjp[j] + "/" + i
+			requestData = ""
+			result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
+	#		ast.literal_eval(result)
+			title = '【' + j + ': ' + i + '】'
+			print(title)
+			track = next(iter(json.loads(result)['data']['origin_info']['trackinfo']))
+			pprint.pprint(track)
+			tasker[title] = track
+
+		with open('tasker', mode='w') as f:
+			f.write(str(tasker))
+
+
+	elif mode == '3':
+		urlStr = "/" + carrierjp[carrier] + "/" + number
 		requestData = ""
-		result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
-#		ast.literal_eval(result)
-		title = '【' + j + ': ' + i + '】'
-		print(title)
-		track = next(iter(json.loads(result)['data']['origin_info']['trackinfo']))
-		pprint.pprint(track)
-		tasker[title] = track
+		result = tracker.trackingmore(requestData, urlStr, "codeNumberDelete")
 
-	with open('tasker', mode='w') as f:
-		f.write(str(tasker))
+		#辞書からも削除（運送会社: 伝票番号）
+		trklist.pop(number)
+		with open('trklist', mode='w') as f:
+			f.write(str(trklist))
 
-
-elif mode == '3':
-	#削除対象を入力
-	print('【リストから荷物を削除】')
-	carrier = input('運送会社を入力: ')
-	number = input('伝票番号を入力: ')
-	urlStr = "/" + carrierjp[carrier] + "/" + number
-	requestData = ""
-	result = tracker.trackingmore(requestData, urlStr, "codeNumberDelete")
-
-	#辞書からも削除（運送会社: 伝票番号）
-	trklist.pop(number)
-	with open('trklist', mode='w') as f:
-		f.write(str(trklist))
-
-	print(result)
-
+		return result
