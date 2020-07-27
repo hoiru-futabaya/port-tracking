@@ -34,12 +34,13 @@ def job():
 
 				if len(input_text) != len(input_text_b):
 					subprocess.run('termux-notification', shell=True, input=input_text, text=True)
+					subprocess.run('termux-vibrate', shell=True, text=True)
 
 
 #30分毎のjob実行を登録
-schedule.every(30).minutes.do(job)
+schedule.every(1).minutes.do(job)
 
 # jobの実行監視、指定時間になったらjob関数を実行
 while True:
 	schedule.run_pending()
-	time.sleep(30)
+	time.sleep(1)
