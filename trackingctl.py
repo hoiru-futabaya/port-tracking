@@ -12,7 +12,7 @@ tracker = trackingmoreclass.track
 result = ""
 tasker = {}
 
-with open('trklist') as f:\
+with open('trklist') as f:
 	trklist = ast.literal_eval(f.read())
 
 #trackingmoreの登録業者辞書（名前: code）
@@ -27,7 +27,6 @@ def trackingctl(mode, carrier ='', number = ''):
 
 	if mode  == '1':
 		#登録画面
-
 		#trackingmoreから情報取得
 		urlStr = ''
 		requestData ="{\"tracking_number\": \"" + number + "\",\"carrier_code\":\"" + carrierjp[carrier] + "\"}"
@@ -47,18 +46,25 @@ def trackingctl(mode, carrier ='', number = ''):
 			urlStr = "/" + carrierjp[j] + "/" + i
 			requestData = ""
 			result = tracker.trackingmore(requestData, urlStr, "codeNumberGet")
-	#		ast.literal_eval(result)
-			title = '【' + j + ': ' + i + '】'
-			print(title)
-			track = next(iter(json.loads(result)['data']['origin_info']['trackinfo']))
-			pprint.pprint(track)
-			tasker[title] = track
-
-		with open('tasker', mode='w') as f:
-			f.write(str(tasker))
-
+			resultl = json.loads(result)
+			if result == '':
+				pass
+			else:
+				if resultl['data']['lastEvent'] == '' :
+					pass
+				else:
+					title = '【' + j + ': ' + i + '】'
+#					print(title)
+					track = next(iter(json.loads(result)['data']['origin_info']['trackinfo']))
+	#				track = json.loads(result)
+	#				pprint.pprint(track)
+					tasker[title] = track
+		#定時監視用のデータを別ファイルに控える
+			with open('tasker', mode='w') as f:
+				f.write(str(tasker))
 
 	elif mode == '3':
+	#削除画面
 		urlStr = "/" + carrierjp[carrier] + "/" + number
 		requestData = ""
 		result = tracker.trackingmore(requestData, urlStr, "codeNumberDelete")
