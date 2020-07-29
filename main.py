@@ -2,6 +2,7 @@
 # coding: 'utf-8'
 
 import schedule
+import datetime
 import time
 import os
 import subprocess
@@ -27,20 +28,24 @@ def job():
 	if len(dicf) == len(dicg):
 
 		#更新されたステータスを表示（あとで条件式考える）
-		for dic in dicg:
-			for dic_b in dicf:
-				input_text = dic + '\n' + dicg[dic]['Date'] + '\n' + dicg[dic]['StatusDescription']
-				input_text_b = dic_b + '\n' + dicf[dic_b]['Date'] + '\n' + dicf[dic_b]['StatusDescription']
-
-				if len(input_text) != len(input_text_b):
-					subprocess.run('termux-notification', shell=True, input=input_text, text=True)
-					subprocess.run('termux-vibrate', shell=True, text=True)
+		for dic, dic_b in zip(dicg, dicf):
+			input_text = dic + '\n' + dicg[dic]['Date'] + '\n' + dicg[dic]['StatusDescription'] + '\n' + dicg[dic]['Details']
+			input_text_b = dic_b + '\n' + dicf[dic_b]['Date'] + '\n' + dicf[dic_b]['StatusDescription'] + '\n' + dicf[dic_b]['Details']
+			print('----')
+			print(datetime.datetime.now())
+			print(dicf[dic_b]['StatusDescription'])
+			print(dicg[dic]['StatusDescription'])
+			if dicg[dic]['StatusDescription'] == dicf[dic_b]['StatusDescription']:
+				pass
+			else:
+				subprocess.run('termux-notification', shell=True, input=input_text, text=True)
+				subprocess.run('termux-vibrate', shell=True, text=True)
 
 
 #30分毎のjob実行を登録
-schedule.every(1).minutes.do(job)
+schedule.every(10).minutes.do(job)
 
 # jobの実行監視、指定時間になったらjob関数を実行
 while True:
 	schedule.run_pending()
-	time.sleep(1)
+	time.sleep(10)
